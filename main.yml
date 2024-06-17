@@ -1,0 +1,85 @@
+root: Mug
+
+options:
+    form: form.yml
+    aggregators:
+        - aggregator.yml
+    scripts:
+        util: util.rhai
+
+Mug:
+    meta:
+        title: Awesome Custom Mug
+    label:
+        type: string
+        constraint: optional
+    has_handle: bool
+    test_color: rgb
+    test_color_rgba: rgba
+    test_date: date
+    color:
+        type: choice
+        constraint: one
+        options:
+            - Black
+            - Sepia
+            - White
+            - Red
+    frame:
+        type: choice
+        constraint: one
+        options:
+            - Circle
+            - Square
+    height:
+        type: numeric
+        min: 50
+        max: 150
+        step: 1
+    diameter:
+        type: numeric
+        min: 80
+        max: 100
+        step: 1
+    volume:
+        type: compute
+        constraint: optional
+        onchange:
+            - height
+            - diameter
+            - frame
+        code: |
+            fn compute_volume() {
+                not_null(self.height);
+                not_null(self.diameter);
+                not_null(self.frame);
+
+                let r = to_float(self.diameter) * 0.5;
+                let s = 0.5 * (to_float(self.diameter) * to_float(self.diameter));
+                let pi = 3.14159265359;
+
+                let volume = 0.0;
+                if self.frame == "Circle" {
+                    volume = (pi * (r * r) * to_float(self.height)) - ((pi * (r * r) * 0.9) * to_float(self.height));
+                }
+                else {
+                    volume = s * to_float(self.height) - (s * 0.9) * to_float(self.height);
+                }
+
+                return volume;
+            }
+    area:
+        type: compute
+        constraint: optional
+        onchange:
+            - height
+            - diameter
+        code: |
+            fn compute_area() {
+                not_null(self.height);
+                not_null(self.diameter);
+
+                let r = to_float(self.diameter) * 0.5;
+                let area = 2 * ((2 * 3.14159265359 * r * r) + (3.14159265359 * r * to_float(self.height)));
+                return area;
+            }

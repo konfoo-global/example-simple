@@ -1,0 +1,57 @@
+options:
+    name: Bill of materials
+    # NOTE: don't change aggregator path for the time being
+    path: bom
+
+meta:
+    template_product: KONFOO-TEMPLATE
+    name: (expr) `MUG-${root.fields.height}-D-${root.fields.diameter}`
+    volume: (expr) root.fields.volume
+    area: (expr) root.fields.area
+
+rules:
+    # bom lines
+    - clay:
+        domain: Mug
+        require:
+            - self.height
+            - self.diameter
+            - self.volume
+            - self.area
+            - self.color
+        model: mrp.bom.line
+        product_id := product.product.default_code: (expr) util::find_clay(self.color)
+        product_uom_id := uom.uom.name: kg
+        product_qty: |
+            (expr) round(1000.0 * 1.87 * self.volume / 1300000) / 1000.0
+
+    # operations
+
+    - op_making_it:
+        domain: Mug
+        require:
+            - self.height
+            - self.diameter
+            - self.volume
+        model: mrp.routing.workcenter
+        workcenter_id := mrp.workcenter.code: STATION1
+        name: Voolimine
+        time_cycle_manual: (expr) round(0.01666667 * (self.volume / 1000.0))
+
+    - op_making_owen:
+        domain: Mug
+        require:
+            - self.volume
+        model: mrp.routing.workcenter
+        workcenter_id := mrp.workcenter.code: OVEN1
+        name: Kuumutamine
+        time_cycle_manual: (expr) 120 * (round(1000.0 * 1.87 * self.volume / 1300000) / 1000.0)
+
+    - op_making_color:
+        domain: Mug
+        require:
+            - self.area
+        model: mrp.routing.workcenter
+        workcenter_id := mrp.workcenter.code: PAINT1
+        name: Värvimine
+        time_cycle_manual: (expr) self.area * 0.001

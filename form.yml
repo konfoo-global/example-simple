@@ -1,0 +1,35 @@
+Mug:
+    - parallel:
+        - meta:
+            title: Size of mug
+        - input:
+            field: height
+            title: Mug Height (mm)
+        - input:
+            field: diameter
+            title: Mug Diameter (mm)
+        - input:
+            field: test_color
+            title: Test RGB
+        - input:
+            field: test_color_rgba
+            title: Test RGBA
+        - input:
+            field: test_date
+            title: Test date
+    - parallel:
+        - meta:
+            title: Features
+        - input:
+            field: frame
+            title: Frame of the mug
+        - input:
+            field: color
+            title: Color of the mug
+        - input:
+            field: label
+            title: Text on the mug
+    - parallel:
+        - meta:
+            title: Date of delivery
+            field: date
